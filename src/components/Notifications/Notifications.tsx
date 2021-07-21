@@ -1,120 +1,60 @@
 import React, { useMemo } from 'react';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import {
-  toast,
-  ToastProps,
-  ToastContainer,
-  Slide,
-  Zoom,
-  Bounce,
-} from 'react-toastify';
+  useSnackbar,
+  SnackbarProvider,
+  SnackbarProps,
+  ClassNameMap,
+  OptionsObject,
+} from 'notistack';
 import { useHMSTheme } from '../../hooks/HMSThemeProvider';
-import { CloseIcon } from '../Icons';
-import { Text } from '../Text';
 import { hmsUiClassParserGenerator } from '../../utils/classes';
-import './notification.css';
-import 'react-toastify/dist/ReactToastify.css';
 
-interface NotificationClasses {
-  root?: string;
-  rootLeft?: string;
-  rootCenter?: string;
-  rootRight?: string;
-}
+const useStyles = makeStyles(() =>
+  createStyles({
+    root: {
+      width: 612,
+    },
+  }),
+);
 
-export interface NotificationProps {
-  /**
-   * Left Component
-   */
-  left?: JSX.Element;
-  /**
-   * Left Component
-   */
-  center?: JSX.Element;
-  /**
-   * Left Component
-   */
-  right?: JSX.Element;
-  /**
-   * extra classes added  by user
-   */
-  classes?: { [key: string]: string } | NotificationClasses;
-  /**
-   * Toast Props based on React-Toastify
-   */
-  toastProps?: Partial<ToastProps>;
-  /**
-   * transition type for notification
-   */
-  transitionType?: 'bounce' | 'zoom' | 'slide';
-}
-
-const defaultClasses: NotificationClasses = {
-  root: `rounded-lg dark:bg-gray-100 bg-white p-5 flex items-center justify-between`,
-  rootLeft: ``,
-  rootCenter: `flex items-center dark:text-white text-black  space-x-4`,
-  rootRight: `cursor-pointer`,
+const defaultClasses: Partial<ClassNameMap> = {
+  anchorOriginBottomLeft: 'bottom-16',
+  containerRoot: `rounded-lg dark:bg-gray-100 bg-white flex items-center justify-between`,
 };
 
-export const Notifications = ({
-  left,
-  center,
-  right,
-  classes,
-}: NotificationProps) => {
+export const useHMSToast = (defaultOptions: OptionsObject) => {
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  return {
+    showToast: (message: string, options: OptionsObject) =>
+      enqueueSnackbar(message, { ...defaultOptions, ...options }),
+    hideToast: closeSnackbar,
+  };
+};
+
+export const HMSToastContainer: React.FC<Partial<SnackbarProps>> = props => {
+  const styles = useStyles();
   const { tw } = useHMSTheme();
   const styler = useMemo(
     () =>
-      hmsUiClassParserGenerator<NotificationClasses>({
+      hmsUiClassParserGenerator<Partial<ClassNameMap>>({
         tw,
-        classes,
         defaultClasses,
-        tag: 'hmsui-notification',
+        tag: 'hmsui-toast',
       }),
     [],
   );
   return (
-    <div className={styler('root')}>
-      <div className={styler('rootLeft')}>{left}</div>
-      <div className={styler('rootCenter')}>{center}</div>
-      <div className={styler('rootRight')}>{right}</div>
-    </div>
-  );
-};
-
-const transitionMapping = {
-  slide: Slide,
-  bounce: Bounce,
-  zoom: Zoom,
-};
-
-export const hmsToast = (message: string, options?: NotificationProps) => {
-  const transition = options?.transitionType
-    ? transitionMapping[options?.transitionType]
-    : options?.toastProps?.transition || Bounce;
-
-  toast(
-    <Notifications
-      left={options?.left || <Text variant="body">{message}</Text>}
-      center={options?.center}
-      right={options?.right || <CloseIcon />}
-    />,
-    {
-      ...options?.toastProps,
-      transition,
-    },
-  );
-};
-
-export const HMSToastContainer: React.FC<Partial<ToastProps>> = props => {
-  return (
-    <ToastContainer
-      {...props}
-      className="hms-toast"
-      position={props.position || 'bottom-left'}
-      autoClose={3000}
-      hideProgressBar
-      closeButton={false}
-      limit={5}
-    />
+    <SnackbarProvider
+      maxSnack={3}
+      classes={{
+        containerRoot: `${styler('containerRoot')} ${styles.root}`,
+        anchorOriginBottomLeft: styler('anchorOriginBottomLeft'),
+      }}
+      anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+    >
+      {props.children}
+    </SnackbarProvider>
   );
 };
