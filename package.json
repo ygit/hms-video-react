@@ -24,8 +24,8 @@
     "build-storybook": "build-storybook -s public"
   },
   "peerDependencies": {
-    "react": ">=16",
-    "@100mslive/hms-video": "^0.0.92"
+    "@100mslive/hms-video": "^0.0.92",
+    "react": ">=16"
   },
   "husky": {
     "hooks": {
@@ -91,12 +91,12 @@
     "clsx": "^1.1.1",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
+    "notistack": "^1.0.9",
     "postcss": "^7.0.35",
     "react-click-away-listener": "^2.0.3",
     "react-intersection-observer": "^8.31.1",
     "react-markdown": "^6.0.0",
     "react-resize-detector": "^6.6.5",
-    "react-toastify": "^7.0.4",
     "remark-gfm": "^1.0.0",
     "tailwind-percentage-heights-plugin": "^0.1.4",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.1.2",
